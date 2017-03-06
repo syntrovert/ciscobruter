@@ -13,7 +13,7 @@ Simply clone this repo and run
 Help:
 -----
 	$ ./ciscobruter.rb -h
-	ciscobruter.rb VERSION: 1.0.0 - UPDATED: 01/20/2016
+	ciscobruter.rb VERSION: 1.0.1 - UPDATED: 03/05/2017
 
 	    -u, --username   [Username]      	Username to guess passwords against
 	    -p, --password   [Password]      	Password to try with username
@@ -21,6 +21,7 @@ Help:
 	    -P, --pass-file  [File Path]     	File containing list of passwords
 	    -t, --target     [URL]           	Target VPN server example: https://vpn.target.com
 	    -l, --login-path  [Login Path]   	Path to login page.  Default: /+webvpn+/index.html
+	    -b, --backwards                  	Rotate usernames instead of passwords
 	    -v, --verbose                    	Enables verbose output
 
 

